@@ -7,7 +7,7 @@ interface UserProfileCardProps {
     email?: string | null
     image?: string | null
   }
-  role: "ADMIN" | "CEE" | "USER"
+  role: "ADMIN" | "CEE" | "STUDENT"
   commissionName?: string | null
   commissionColor?: string | null
 }
@@ -33,14 +33,14 @@ export function UserProfileCard({
   const roleLabels = {
     ADMIN: "Administrateur",
     CEE: "Membre CEE",
-    USER: "Utilisateur"
+    STUDENT: "Etudiant"
   }
 
   // Couleurs des badges selon le rôle
   const roleColors = {
     ADMIN: "bg-red-500 text-white hover:bg-red-600",
     CEE: "bg-blue-500 text-white hover:bg-blue-600",
-    USER: "bg-gray-500 text-white hover:bg-gray-600"
+    STUDENT: "bg-gray-500 text-white hover:bg-gray-600"
   }
 
   return (
@@ -55,7 +55,7 @@ export function UserProfileCard({
 
       {/* Infos utilisateur */}
       <div className="flex flex-col gap-1 min-w-0 flex-1">
-        <p className="font-semibold text-sm truncate">
+        <p className="font-semibold text-white text-sm truncate">
           {user.name || "Utilisateur"}
         </p>
         <p className="text-xs text-muted-foreground truncate">

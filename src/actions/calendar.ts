@@ -36,25 +36,6 @@ export async function getCalendarData() {
       status: "ACCEPTED", // Seulement les réservations acceptées
     }
 
-    if (userRole === "CEE") {
-      // CEE can only see reservations for locations in their commission
-      const user = await db.user.findUnique({
-        where: { id: session.user.id },
-        select: { commissionId: true },
-      })
-
-      if (!user?.commissionId) {
-        return { error: "Commission non trouvée" }
-      }
-
-      reservationsWhere = {
-        status: "ACCEPTED",
-        location: {
-          commissionId: user.commissionId,
-        },
-      }
-    }
-    // ADMIN can see all ACCEPTED reservations
 
     const reservations = await db.reservation.findMany({
       where: reservationsWhere,
