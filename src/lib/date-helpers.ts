@@ -71,3 +71,36 @@ export function calculateGrowthPercentage(current: number, previous: number): nu
   if (previous === 0) return current > 0 ? 100 : 0
   return Math.round(((current - previous) / previous) * 100)
 }
+
+/**
+ * Calculer l'heure de fin maximale basée sur l'heure de début et la durée max
+ * Gère automatiquement le rollover minuit (ex: 23:00 + 3h = 02:00 jour suivant)
+ */
+export function calculateMaxEndTime(start: Date, maxHours: number): Date {
+  const maxEnd = new Date(start)
+  maxEnd.setHours(start.getHours() + maxHours)
+  return maxEnd
+}
+
+/**
+ * Calculer l'heure de fin minimale (début + 15 minutes minimum)
+ * Garantit une durée minimale pour la réservation
+ */
+export function calculateMinEndTime(start: Date): Date {
+  const minEnd = new Date(start)
+  minEnd.setMinutes(start.getMinutes() + 15)
+  return minEnd
+}
+
+/**
+ * Arrondir une date au quart d'heure le plus proche (15 min)
+ * Ex: 10:07 → 10:15, 10:22 → 10:30
+ */
+export function roundToNearestQuarterHour(date: Date): Date {
+  const rounded = new Date(date)
+  const minutes = Math.ceil(date.getMinutes() / 15) * 15
+  rounded.setMinutes(minutes)
+  rounded.setSeconds(0)
+  rounded.setMilliseconds(0)
+  return rounded
+}

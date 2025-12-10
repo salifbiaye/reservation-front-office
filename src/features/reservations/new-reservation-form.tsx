@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
+import { DateTimePicker } from "@/components/ui/date-time-picker"
+import { calculateMaxEndTime, calculateMinEndTime } from "@/lib/date-helpers"
 
 interface Location {
   id: string
@@ -31,13 +33,49 @@ export function NewReservationForm({ locations }: NewReservationFormProps) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined)
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined)
 
-  const { register, handleSubmit, formState: { errors, isSubmitting }, watch } = useForm<CreateReservationInput>({
+  const { register, handleSubmit, formState: { errors, isSubmitting }, watch, setValue } = useForm<CreateReservationInput>({
     resolver: zodResolver(createReservationSchema)
   })
 
   const selectedLocationId = watch("locationId")
   const selectedLocation = locations.find(l => l.id === selectedLocationId)
+  const maxDurationHours = selectedLocation?.maxDurationHours
+
+  // Calculate max end time based on start and location's maxDurationHours
+  const maxEndTime = useMemo(() => {
+    if (!startDate || !maxDurationHours) return undefined
+    return calculateMaxEndTime(startDate, maxDurationHours)
+  }, [startDate, maxDurationHours])
+
+  // Calculate min end time (start + 15 min)
+  const minEndTime = useMemo(() => {
+    if (!startDate) return undefined
+    return calculateMinEndTime(startDate)
+  }, [startDate])
+
+  // Auto-adjust end time when constraints change
+  useEffect(() => {
+    if (endDate && maxEndTime && endDate > maxEndTime) {
+      setEndDate(maxEndTime)
+      setValue("end", maxEndTime)
+    }
+    if (endDate && minEndTime && endDate < minEndTime) {
+      setEndDate(minEndTime)
+      setValue("end", minEndTime)
+    }
+  }, [maxEndTime, minEndTime, endDate, setValue])
+
+  // When start changes, ensure end is still valid
+  useEffect(() => {
+    if (startDate && endDate && endDate <= startDate) {
+      const newEndDate = calculateMinEndTime(startDate)
+      setEndDate(newEndDate)
+      setValue("end", newEndDate)
+    }
+  }, [startDate, endDate, setValue])
 
   const onSubmit = async (data: CreateReservationInput) => {
     setError(null)
@@ -121,12 +159,15 @@ export function NewReservationForm({ locations }: NewReservationFormProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="start">Date et heure de début</Label>
-              <Input
-                id="start"
-                type="datetime-local"
-                {...register("start", {
-                  setValueAs: (value) => value ? new Date(value) : undefined
-                })}
+              <DateTimePicker
+                date={startDate}
+                setDate={(date) => {
+                  setStartDate(date)
+                  setValue("start", date, { shouldValidate: true })
+                }}
+                placeholder="Sélectionner la date de début"
+                minDate={new Date()}
+                disabled={isSubmitting}
               />
               {errors.start && (
                 <p className="text-xs text-red-500">{errors.start.message}</p>
@@ -135,15 +176,25 @@ export function NewReservationForm({ locations }: NewReservationFormProps) {
 
             <div className="space-y-2">
               <Label htmlFor="end">Date et heure de fin</Label>
-              <Input
-                id="end"
-                type="datetime-local"
-                {...register("end", {
-                  setValueAs: (value) => value ? new Date(value) : undefined
-                })}
+              <DateTimePicker
+                date={endDate}
+                setDate={(date) => {
+                  setEndDate(date)
+                  setValue("end", date, { shouldValidate: true })
+                }}
+                placeholder="Sélectionner la date de fin"
+                minDate={startDate}
+                minTime={minEndTime}
+                maxTime={maxEndTime}
+                disabled={!startDate || isSubmitting}
               />
               {errors.end && (
                 <p className="text-xs text-red-500">{errors.end.message}</p>
+              )}
+              {maxDurationHours && startDate && (
+                <p className="text-xs text-muted-foreground">
+                  Durée maximum: {maxDurationHours}h
+                </p>
               )}
             </div>
           </div>

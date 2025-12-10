@@ -17,6 +17,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
+import { Drawer, DrawerContent } from "@/components/ui/drawer"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -182,26 +183,31 @@ function Sidebar({
 
   if (isMobile) {
     return (
-      <Sheet open={openMobile} onOpenChange={setOpenMobile} {...props}>
-        <SheetContent
+      <Drawer
+        open={openMobile}
+        onOpenChange={setOpenMobile}
+        dismissible={true}
+        modal={true}
+        {...props}
+      >
+        <DrawerContent
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
-          style={
-            {
-              "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-            } as React.CSSProperties
-          }
-          side={side}
+          className={cn(
+            "h-[80vh] rounded-t-3xl",
+            "bg-gray-900 dark:bg-muted text-sidebar-foreground",
+            "p-0"
+          )}
         >
-          <SheetHeader className="sr-only">
-            <SheetTitle>Sidebar</SheetTitle>
-            <SheetDescription>Displays the mobile sidebar.</SheetDescription>
-          </SheetHeader>
-          <div className="flex h-full w-full flex-col">{children}</div>
-        </SheetContent>
-      </Sheet>
+          {/* iOS-style drag handle */}
+          <div className="mx-auto mt-3 mb-2 h-1 w-10 rounded-full bg-gray-400/50" />
+
+          <div className="flex h-full w-full flex-col overflow-y-auto pb-4">
+            {children}
+          </div>
+        </DrawerContent>
+      </Drawer>
     )
   }
 
