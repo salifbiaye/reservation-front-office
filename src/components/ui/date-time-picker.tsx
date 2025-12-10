@@ -21,6 +21,7 @@ interface DateTimePickerProps {
   minTime?: Date
   maxTime?: Date
   showClearButton?: boolean
+  minuteIncrement?: 5 | 15
 }
 
 function DateTimePicker({
@@ -33,6 +34,7 @@ function DateTimePicker({
   minTime,
   maxTime,
   showClearButton = true,
+  minuteIncrement = 15,
 }: DateTimePickerProps) {
   const [open, setOpen] = React.useState(false)
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(date)
@@ -44,14 +46,14 @@ function DateTimePicker({
   const handleDateSelect = (newDate: Date | undefined) => {
     if (!newDate) return
 
-    // Preserve time if date already exists, otherwise set to current time rounded to 15min
+    // Preserve time if date already exists, otherwise set to current time rounded by increment
     if (selectedDate) {
       newDate.setHours(selectedDate.getHours())
       newDate.setMinutes(selectedDate.getMinutes())
     } else {
       const now = new Date()
       newDate.setHours(now.getHours())
-      const roundedMinutes = Math.ceil(now.getMinutes() / 15) * 15
+      const roundedMinutes = Math.ceil(now.getMinutes() / minuteIncrement) * minuteIncrement
       newDate.setMinutes(roundedMinutes)
     }
 
@@ -119,6 +121,7 @@ function DateTimePicker({
                 setDate={handleTimeChange}
                 minTime={minTime}
                 maxTime={maxTime}
+                minuteIncrement={minuteIncrement}
               />
             </div>
           </div>

@@ -8,11 +8,17 @@ interface TimePickerProps {
   setDate: (date: Date | undefined) => void
   minTime?: Date
   maxTime?: Date
+  minuteIncrement?: 5 | 15
 }
 
-function TimePicker({ date, setDate, minTime, maxTime }: TimePickerProps) {
+function TimePicker({ date, setDate, minTime, maxTime, minuteIncrement = 15 }: TimePickerProps) {
   const hours = Array.from({ length: 24 }, (_, i) => i)
-  const minutes = [0, 15, 30, 45]
+
+  // Generate minutes dynamically based on increment
+  const minutes = Array.from(
+    { length: 60 / minuteIncrement },
+    (_, i) => i * minuteIncrement
+  )
 
   const handleHourChange = (hour: string) => {
     const newDate = date ? new Date(date) : new Date()

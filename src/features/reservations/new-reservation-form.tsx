@@ -77,6 +77,15 @@ export function NewReservationForm({ locations }: NewReservationFormProps) {
     }
   }, [startDate, endDate, setValue])
 
+  // Auto-fill end date when start is selected and maxDurationHours exists
+  useEffect(() => {
+    if (startDate && !endDate && maxDurationHours) {
+      const autoEndDate = calculateMaxEndTime(startDate, maxDurationHours)
+      setEndDate(autoEndDate)
+      setValue("end", autoEndDate)
+    }
+  }, [startDate, endDate, maxDurationHours, setValue])
+
   const onSubmit = async (data: CreateReservationInput) => {
     setError(null)
     setSuccess(false)
@@ -168,6 +177,7 @@ export function NewReservationForm({ locations }: NewReservationFormProps) {
                 placeholder="Sélectionner la date de début"
                 minDate={new Date()}
                 disabled={isSubmitting}
+                minuteIncrement={5}
               />
               {errors.start && (
                 <p className="text-xs text-red-500">{errors.start.message}</p>
@@ -187,6 +197,7 @@ export function NewReservationForm({ locations }: NewReservationFormProps) {
                 minTime={minEndTime}
                 maxTime={maxEndTime}
                 disabled={!startDate || isSubmitting}
+                minuteIncrement={5}
               />
               {errors.end && (
                 <p className="text-xs text-red-500">{errors.end.message}</p>
