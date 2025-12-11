@@ -9,6 +9,8 @@ export const metadata = {
   description: "Demander une nouvelle réservation",
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function NewReservationPage() {
   const locations = await db.location.findMany({
     include: {
