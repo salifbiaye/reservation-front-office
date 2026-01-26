@@ -1,15 +1,16 @@
-import { db } from "@/lib/db"
+import { getLocations } from "@/actions/locations"
 import { NewReservationForm } from "./new-reservation-form"
 
 export async function NewReservationLoader() {
-  const locations = await db.location.findMany({
-    include: {
-      commission: true
-    },
-    orderBy: {
-      name: "asc"
-    }
-  })
+  const result = await getLocations()
 
-  return <NewReservationForm locations={locations} />
+  if ("error" in result) {
+    return (
+      <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500">
+        Erreur: {result.error}
+      </div>
+    )
+  }
+
+  return <NewReservationForm locations={result.locations} />
 }
