@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { auth } from "@/lib/auth"
-import {DeleteUser} from "@/actions/user";
+import { getSessionWithCache } from "@/lib/session-cache"
+import { db } from "@/lib/db"
 
 // Routes publiques (accessibles sans authentification)
 const publicRoutes = [
@@ -36,19 +36,18 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // Routes publiques accessibles sans session
+  if (publicRoutes.includes(pathname)) {
+    return NextResponse.next()
+  }
 
   // Pour les routes protégées, vérifier la session ET le rôle
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers
-    })
-    if (session && pathname === "/login") {
-      console.log("✅ Utilisateur connecté, redirection depuis /login vers /dashboard")
+    const session = await getSessionWithCache()
+    
+    // Redirection uniquement pour les requêtes GET vers /login
+    if (session && pathname === "/login" && request.method === "GET") {
       return NextResponse.redirect(new URL("/dashboard", request.url))
-    }
-    // Routes publiques accessibles sans session
-    if (publicRoutes.includes(pathname)) {
-      return NextResponse.next()
     }
 
     if (!session) {
@@ -59,12 +58,9 @@ export async function proxy(request: NextRequest) {
     }
 
     // IMPORTANT: Front Office = STUDENT uniquement
-    if (session.user.role !== "STUDENT" || !session.user.email.endsWith("@esp.sn")) {
-      // Si l'utilisateur n'est pas STUDENT, le déconnecter
-      if(session.user.role == "STUDENT"){
-        await DeleteUser(session.user.id);
-      }
-      const response = NextResponse.redirect(new URL("/logout?error=wrong-role", request.url))
+    if (session.user.role !== "STUDENT") {
+      // Si l'utilisateur n'est pas STUDENT, le déconnecter silencieusement
+      const response = NextResponse.redirect(new URL("/logout", request.url))
 
       // Supprimer les cookies de session
       response.cookies.delete("better-auth.session_token")

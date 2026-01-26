@@ -1,8 +1,7 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
+import { getCachedSession } from "@/lib/session"
 import { revalidatePath } from "next/cache"
 import { createReservationSchema, type CreateReservationInput } from "@/schemas/reservation"
 import {
@@ -15,9 +14,7 @@ import { buildSearchCondition, parseSearchParam, parseStatusFilter } from "@/lib
 export async function getMyReservations(params?: {
   searchParams?: URLSearchParams | Record<string, string | string[] | undefined>
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers()
-  })
+  const session = await getCachedSession()
 
   if (!session) {
     return { error: "Non authentifié" }
@@ -61,9 +58,7 @@ export async function getMyReservations(params?: {
 }
 
 export async function createReservation(data: CreateReservationInput) {
-  const session = await auth.api.getSession({
-    headers: await headers()
-  })
+  const session = await getCachedSession()
 
   if (!session) {
     return { success: false, error: "Non authentifié" }
@@ -159,9 +154,7 @@ export async function createReservation(data: CreateReservationInput) {
 }
 
 export async function cancelReservation(reservationId: string) {
-  const session = await auth.api.getSession({
-    headers: await headers()
-  })
+  const session = await getCachedSession()
 
   if (!session) {
     return { success: false, error: "Non authentifié" }

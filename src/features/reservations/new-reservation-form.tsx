@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Loader2 } from "lucide-react"
-import { DateTimePicker } from "@/components/ui/date-time-picker"
+import { DateTimeInput } from "@/components/ui/datetime-input"
 import { calculateMaxEndTime, calculateMinEndTime } from "@/lib/date-helpers"
 
 interface Location {
@@ -33,11 +33,25 @@ export function NewReservationForm({ locations }: NewReservationFormProps) {
   const router = useRouter()
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined)
+  
+  // Initialiser la date de début à maintenant + 15 minutes arrondi
+  const getInitialStartDate = () => {
+    const now = new Date()
+    const roundedMinutes = Math.ceil(now.getMinutes() / 15) * 15
+    now.setMinutes(roundedMinutes)
+    now.setSeconds(0)
+    now.setMilliseconds(0)
+    return now
+  }
+  
+  const [startDate, setStartDate] = useState<Date | undefined>(getInitialStartDate())
   const [endDate, setEndDate] = useState<Date | undefined>(undefined)
 
   const { register, handleSubmit, formState: { errors, isSubmitting }, watch, setValue } = useForm<CreateReservationInput>({
-    resolver: zodResolver(createReservationSchema)
+    resolver: zodResolver(createReservationSchema),
+    defaultValues: {
+      start: getInitialStartDate()
+    }
   })
 
   const selectedLocationId = watch("locationId")
@@ -168,16 +182,14 @@ export function NewReservationForm({ locations }: NewReservationFormProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="start">Date et heure de début</Label>
-              <DateTimePicker
-                date={startDate}
-                setDate={(date) => {
+              <DateTimeInput
+                value={startDate}
+                onChange={(date) => {
                   setStartDate(date)
                   setValue("start", date, { shouldValidate: true })
                 }}
-                placeholder="Sélectionner la date de début"
-                minDate={new Date()}
+                min={new Date()}
                 disabled={isSubmitting}
-                minuteIncrement={5}
               />
               {errors.start && (
                 <p className="text-xs text-red-500">{errors.start.message}</p>
@@ -186,18 +198,15 @@ export function NewReservationForm({ locations }: NewReservationFormProps) {
 
             <div className="space-y-2">
               <Label htmlFor="end">Date et heure de fin</Label>
-              <DateTimePicker
-                date={endDate}
-                setDate={(date) => {
+              <DateTimeInput
+                value={endDate}
+                onChange={(date) => {
                   setEndDate(date)
                   setValue("end", date, { shouldValidate: true })
                 }}
-                placeholder="Sélectionner la date de fin"
-                minDate={startDate}
-                minTime={minEndTime}
-                maxTime={maxEndTime}
+                min={minEndTime}
+                max={maxEndTime}
                 disabled={!startDate || isSubmitting}
-                minuteIncrement={5}
               />
               {errors.end && (
                 <p className="text-xs text-red-500">{errors.end.message}</p>

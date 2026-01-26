@@ -57,11 +57,11 @@ export function RegisterForm() {
       </div>
 
       <div>
-        <label className="text-sm font-medium text-muted-foreground">Email (@esp.sn)</label>
+        <label className="text-sm font-medium text-muted-foreground">Email</label>
         <GlassInput
           {...register("email")}
           type="email"
-          placeholder="votrenom@esp.sn"
+          placeholder="votre@email.com"
           error={errors.email?.message}
         />
       </div>

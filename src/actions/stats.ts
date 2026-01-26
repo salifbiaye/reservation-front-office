@@ -1,15 +1,12 @@
 "use server"
 
 import { db } from "@/lib/db"
-import { auth } from "@/lib/auth"
-import { headers } from "next/headers"
+import { getCachedSession } from "@/lib/session"
 import { startOfMonth, endOfMonth, subMonths, format } from "date-fns"
 import { fr } from "date-fns/locale"
 
 export async function getStudentStats() {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
+    const session = await getCachedSession()
 
     if (!session?.user) {
         throw new Error("Non authentifié")
@@ -36,9 +33,7 @@ export async function getStudentStats() {
 }
 
 export async function getMonthlyReservations() {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
+    const session = await getCachedSession()
 
     if (!session?.user) {
         throw new Error("Non authentifié")
@@ -96,9 +91,7 @@ export async function getMonthlyReservations() {
 }
 
 export async function getLocationStats() {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
+    const session = await getCachedSession()
 
     if (!session?.user) {
         throw new Error("Non authentifié")
@@ -138,9 +131,7 @@ export async function getLocationStats() {
 }
 
 export async function getUpcomingReservations() {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
+    const session = await getCachedSession()
 
     if (!session?.user) {
         throw new Error("Non authentifié")
@@ -171,9 +162,7 @@ export async function getUpcomingReservations() {
 }
 
 export async function getRecentActivity() {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
+    const session = await getCachedSession()
 
     if (!session?.user) {
         throw new Error("Non authentifié")

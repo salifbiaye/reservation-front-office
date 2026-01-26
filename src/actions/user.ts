@@ -1,13 +1,10 @@
 "use server"
 
-import {auth} from "@/lib/auth";
-import {headers} from "next/headers";
+import { getCachedSession } from "@/lib/session";
 import {db} from "@/lib/db";
 
 export async function DeleteUser( id:string) {
-    const session = await auth.api.getSession({
-        headers: await headers()
-    })
+    const session = await getCachedSession()
 
     if (!session) {
         return {error: "Non authentifié"}

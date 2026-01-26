@@ -34,7 +34,7 @@ function DateTimePicker({
   minTime,
   maxTime,
   showClearButton = true,
-  minuteIncrement = 15,
+  minuteIncrement = 5,
 }: DateTimePickerProps) {
   const [open, setOpen] = React.useState(false)
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(date)

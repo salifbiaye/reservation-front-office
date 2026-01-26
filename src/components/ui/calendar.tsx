@@ -21,6 +21,11 @@ function Calendar({
             locale={fr}
             showOutsideDays={showOutsideDays}
             className={cn("p-3", className)}
+            formatters={{
+                formatWeekdayName: (date) => {
+                    return date.toLocaleDateString('fr-FR', { weekday: 'short' }).slice(0, 2)
+                }
+            }}
             classNames={{
                 months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
                 month: "space-y-4",

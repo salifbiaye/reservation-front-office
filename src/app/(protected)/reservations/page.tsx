@@ -1,8 +1,9 @@
-import { getMyReservations } from "@/actions/reservations"
-import { ReservationsContent } from "@/features/reservations/reservations-content"
-import {CalendarCheck, User} from "lucide-react"
-import {PageHeader} from "@/components";
-import {PageHeroSection} from "@/components/page-hero";
+import { ReservationsLoader } from "@/features/reservations/reservations-loader"
+import { CalendarCheck } from "lucide-react"
+import { PageHeader } from "@/components"
+import { PageHeroSection } from "@/components/page-hero"
+import { Suspense } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export const metadata = {
   title: "Mes Réservations - ESP Réservation",
@@ -15,25 +16,34 @@ interface PageProps {
 
 export default async function ReservationsPage({ searchParams }: PageProps) {
   const params = await searchParams
-  const result = await getMyReservations({ searchParams: params })
-
-  if ("error" in result) {
-    return <div>Erreur: {result.error}</div>
-  }
 
   return (
-      <div>
-          <PageHeader/>
-          <div className="flex-1 space-y-6 p-6">
-              <PageHeroSection
-                  icon={CalendarCheck}
-                  title="Mes Réservations"
-                  description="Consultez et gérez vos demandes"
-                  visualIcon={CalendarCheck}
-              />
+    <div>
+      <PageHeader />
+      <div className="flex-1 space-y-6 p-6">
+        <PageHeroSection
+          icon={CalendarCheck}
+          title="Mes Réservations"
+          description="Consultez et gérez vos demandes"
+          visualIcon={CalendarCheck}
+        />
 
-              <ReservationsContent result={result}/>
-          </div>
+        <Suspense fallback={<TableSkeleton />}>
+          <ReservationsLoader searchParams={params} />
+        </Suspense>
       </div>
+    </div>
+  )
+}
+
+function TableSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-10 w-32" />
+      </div>
+      <Skeleton className="h-96 w-full" />
+    </div>
   )
 }
