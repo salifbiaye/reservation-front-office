@@ -118,7 +118,7 @@ export function LoginForm() {
       return
     }
 
-    router.push("/dashboard")
+    router.push("/new-reservation")
   }
 
   return (
@@ -152,7 +152,7 @@ export function LoginForm() {
             </p>
             <button
               type="button"
-              onClick={() => authClient.signIn.social({ provider: "google", callbackURL: "/dashboard" })}
+              onClick={() => authClient.signIn.social({ provider: "google", callbackURL: "/new-reservation" })}
               className="w-full flex items-center justify-center gap-2 rounded-2xl bg-white py-3 text-sm font-medium text-gray-900 hover:bg-gray-100 transition-colors"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">

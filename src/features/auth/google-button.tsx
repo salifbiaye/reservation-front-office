@@ -24,7 +24,7 @@ export function GoogleButton() {
 
       await authClient.signIn.social({
         provider: "google",
-        callbackURL: "/dashboard"
+        callbackURL: "/new-reservation"
       })
     } catch (err) {
       console.error("Google sign in error:", err)

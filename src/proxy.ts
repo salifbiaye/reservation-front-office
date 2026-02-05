@@ -47,7 +47,7 @@ export async function proxy(request: NextRequest) {
     
     // Redirection uniquement pour les requêtes GET vers /login
     if (session && pathname === "/login" && request.method === "GET") {
-      return NextResponse.redirect(new URL("/dashboard", request.url))
+      return NextResponse.redirect(new URL("/new-reservation", request.url))
     }
 
     if (!session) {
